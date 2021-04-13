@@ -8,18 +8,21 @@ public class PlayerController : MonoBehaviour
 
     [Range(1, 10)]
     public float jumpVelocity = 5;
+    public float fallSpeed = 1f;
 
     private bool _isGrounded = true;
 
     Rigidbody2D rb;
-    Collider2D _collider;
+
+    public GameObject fireballPrefab;
+
+    public float rotate;
 
 
     // Start is called before the first frame update
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
-        _collider = GetComponent<Collider2D>();
     }
 
     // Update is called once per frame
@@ -28,6 +31,11 @@ public class PlayerController : MonoBehaviour
         if (Input.GetKey(KeyCode.Space))
         {
             Jump();
+        }
+
+        if (Input.GetKeyDown(KeyCode.E))
+        {
+            SpellFireball();
         }
     }
 
@@ -55,6 +63,16 @@ public class PlayerController : MonoBehaviour
         {
             rb.velocity = Vector2.up * jumpVelocity;
             _isGrounded = false;
+        } else if(rb.velocity.y < 0f && Mathf.Abs(rb.velocity.y) > fallSpeed)
+        {
+            Debug.Log("plane");
+            rb.velocity = new Vector2(rb.velocity.x, Mathf.Sign(rb.velocity.y) * fallSpeed);
         }
+    }
+
+
+    void SpellFireball()
+    {
+        GameObject _ball = Instantiate(fireballPrefab, transform.position, transform.rotation);
     }
 }

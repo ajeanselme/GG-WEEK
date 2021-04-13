@@ -164,7 +164,7 @@ Rigidbody2D:
   m_Interpolate: 0
   m_SleepingMode: 1
   m_CollisionDetection: 0
-  m_Constraints: 0
+  m_Constraints: 4
 --- !u!61 &143890671
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -268,8 +268,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6b0be8b60d5e4204583fa2e5bb99f458, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  speed: 10
-  jumpVelocity: 8
+  speed: 1
+  jumpVelocity: 10
+  fallSpeed: 1
+  fireballPrefab: {fileID: 4162227199538491552, guid: 3ad4622c053663146bc9479352b5db33, type: 3}
+  rotate: 90
 --- !u!114 &143890675
 MonoBehaviour:
   m_ObjectHideFlags: 0
