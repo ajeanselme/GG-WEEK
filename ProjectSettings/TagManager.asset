@@ -6,6 +6,11 @@ TagManager:
   tags:
   - Ground
   - Gem
+  - Enemy
+  - Goomba
+  - Shooter
+  - Fireball
+  - GoombaTop
   layers:
   - Default
   - TransparentFX

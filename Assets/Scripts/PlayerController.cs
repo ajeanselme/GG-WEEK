@@ -1,12 +1,17 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class PlayerController : MonoBehaviour
 {
+    public float maxHealth;
+    public float currentHealth;
+    public Slider healthBar;
+
     public float speed;
 
-    [Range(1, 10)]
+    [Range(1, 30)]
     public float jumpVelocity = 5;
     public float fallSpeed = 1f;
 
@@ -15,6 +20,7 @@ public class PlayerController : MonoBehaviour
     Rigidbody2D rb;
 
     public float fireballManaCost = 2;
+    public float fireballSpeed = 1f;
     public GameObject fireballPrefab;
 
     public float glideManaCost = 1;
@@ -31,6 +37,8 @@ public class PlayerController : MonoBehaviour
     {
         rb = GetComponent<Rigidbody2D>();
         _manaManager = GetComponent<ManaManager>();
+
+        AddHealth(0);
     }
 
     // Update is called once per frame
@@ -38,7 +46,7 @@ public class PlayerController : MonoBehaviour
     {
         if (Input.GetKey(KeyCode.Space))
         {
-            Jump();
+            Jump(false);
         }
 
         if (Input.GetKeyDown(KeyCode.E))
@@ -70,8 +78,10 @@ public class PlayerController : MonoBehaviour
     }
 
 
-    public void Jump()
+    public void Jump(bool force)
     {
+        if (force) _isGrounded = true;
+
         if (_isGrounded)
         {
             rb.velocity = Vector2.up * jumpVelocity;
@@ -96,6 +106,10 @@ public class PlayerController : MonoBehaviour
         if(_manaManager.currentMana > fireballManaCost)
         {
             GameObject _ball = Instantiate(fireballPrefab, transform.position, transform.rotation);
+            _ball.GetComponent<Fireball>().owner = gameObject;
+            _ball.GetComponent<Fireball>().speed = fireballSpeed;
+            _ball.GetComponent<Fireball>().Move(true);
+
             _manaManager.AddMana(-fireballManaCost);
         } else
         {
@@ -109,4 +123,45 @@ public class PlayerController : MonoBehaviour
     }
 
 
+
+    public void AddHealth(float value)
+    {
+        if (currentHealth + value < maxHealth)
+        {
+            if (currentHealth + value > 0)
+            {
+                currentHealth += value;
+                healthBar.value = currentHealth / maxHealth;
+            }
+            else
+            {
+                KillPlayer();
+            }
+
+        }
+        else
+        {
+            currentHealth = maxHealth;
+            healthBar.value = 1f;
+
+        }
+    }
+
+
+    public void KillPlayer()
+    {
+        Debug.Log("u ded");
+    }
+
+    private void OnTriggerEnter2D(Collider2D collision)
+    {
+        if (collision.gameObject.tag.Equals("Fireball"))
+        {
+            if (collision.gameObject.GetComponent<Fireball>().owner.tag.Equals("Shooter"))
+            {
+                AddHealth(-collision.gameObject.GetComponent<Fireball>().owner.GetComponent<EnemyShooter>().damage);
+                Destroy(collision.gameObject);
+            }
+        }
+    }
 }
