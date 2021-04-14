@@ -5,10 +5,12 @@ using UnityEngine.UI;
 
 public class PlayerController : MonoBehaviour
 {
+    [Header("Health")]
     public float maxHealth;
     public float currentHealth;
     public Slider healthBar;
 
+    [Header("Movements")]
     public float speed;
 
     [Range(1, 30)]
@@ -19,10 +21,21 @@ public class PlayerController : MonoBehaviour
 
     Rigidbody2D rb;
 
+    [Header("Fireball")]
     public float fireballManaCost = 2;
     public float fireballSpeed = 1f;
     public GameObject fireballPrefab;
 
+    [Header("Dash")]
+    public float dashManaCost = 3f;
+    public float dashMultiplier = 3f;
+    public float dashTime = 1f;
+    private float _dashCooldown;
+    private float _currentDashMultiplier = 1f;
+    private bool _isDashing = false;
+
+
+    [Header("Glide")]
     public float glideManaCost = 1;
 
 
@@ -54,6 +67,11 @@ public class PlayerController : MonoBehaviour
             SpellFireball();
         }
 
+        if (Input.GetKeyDown(KeyCode.D))
+        {
+            SpellDash();
+        }
+
         if (Input.GetKeyDown(KeyCode.F))
         {
             UseGem();
@@ -62,9 +80,20 @@ public class PlayerController : MonoBehaviour
 
     private void FixedUpdate()
     {
+
+        if (_isDashing)
+        {
+            if(Time.time > _dashCooldown)
+            {
+                //end dash
+                _currentDashMultiplier = 1f;
+                _isDashing = false;
+            }
+        }
+
         Vector3 Movement = new Vector3(1, 0, 0);
 
-        transform.position += Movement * speed * Time.deltaTime;
+        transform.position += Movement * speed * _currentDashMultiplier * Time.deltaTime;
 
         Camera.main.transform.position = new Vector3(transform.position.x, 0, Camera.main.transform.position.z);
     }
@@ -112,6 +141,25 @@ public class PlayerController : MonoBehaviour
 
             _manaManager.AddMana(-fireballManaCost);
         } else
+        {
+            Debug.Log("Not enough mana");
+        }
+    }
+
+    void SpellDash()
+    {
+        if (_manaManager.currentMana > fireballManaCost)
+        {
+            if (!_isDashing)
+            {
+                _isDashing = true;
+                _currentDashMultiplier = dashMultiplier;
+                _dashCooldown = Time.time + dashTime;
+
+                _manaManager.AddMana(-dashManaCost);
+            }
+        }
+        else
         {
             Debug.Log("Not enough mana");
         }
