@@ -14,15 +14,23 @@ public class PlayerController : MonoBehaviour
 
     Rigidbody2D rb;
 
+    public float fireballManaCost = 2;
     public GameObject fireballPrefab;
 
-    public float rotate;
+    public float glideManaCost = 1;
+
+
+    ManaManager _manaManager;
+
+    bool _canGlide = true;
+
 
 
     // Start is called before the first frame update
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
+        _manaManager = GetComponent<ManaManager>();
     }
 
     // Update is called once per frame
@@ -36,6 +44,11 @@ public class PlayerController : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.E))
         {
             SpellFireball();
+        }
+
+        if (Input.GetKeyDown(KeyCode.F))
+        {
+            UseGem();
         }
     }
 
@@ -63,16 +76,37 @@ public class PlayerController : MonoBehaviour
         {
             rb.velocity = Vector2.up * jumpVelocity;
             _isGrounded = false;
+            _canGlide = true;
         } else if(rb.velocity.y < 0f && Mathf.Abs(rb.velocity.y) > fallSpeed)
         {
-            Debug.Log("plane");
-            rb.velocity = new Vector2(rb.velocity.x, Mathf.Sign(rb.velocity.y) * fallSpeed);
+            if(_manaManager.currentMana > 0 && _canGlide)
+            {
+                rb.velocity = new Vector2(rb.velocity.x, Mathf.Sign(rb.velocity.y) * fallSpeed);
+                _manaManager.AddMana(-glideManaCost * Time.deltaTime);
+            } else
+            {
+                _canGlide = false;
+            }
         }
     }
 
 
     void SpellFireball()
     {
-        GameObject _ball = Instantiate(fireballPrefab, transform.position, transform.rotation);
+        if(_manaManager.currentMana > fireballManaCost)
+        {
+            GameObject _ball = Instantiate(fireballPrefab, transform.position, transform.rotation);
+            _manaManager.AddMana(-fireballManaCost);
+        } else
+        {
+            Debug.Log("Not enough mana");
+        }
     }
+
+    void UseGem()
+    {
+        _manaManager.SetHasGem(false, null);
+    }
+
+
 }
