@@ -33,7 +33,7 @@ public class ManaManager : MonoBehaviour
     {
         if (collision.tag.Equals("Gem"))
         {            
-            SetHasGem(true, collision.gameObject);
+            SetHasGem(true, collision.gameObject, false);
         }
     }
 
@@ -62,7 +62,7 @@ public class ManaManager : MonoBehaviour
         }
     }
 
-    public void SetHasGem(bool value, GameObject gemObject)
+    public void SetHasGem(bool value, GameObject gemObject, bool consume)
     {
         if (value)
         {
@@ -70,21 +70,21 @@ public class ManaManager : MonoBehaviour
             {
                 _hasAGem = true;
                 _equippedGem = gemObject;
-
+                gemObject.GetComponent<ManaGem>().setActive();
                 gemObject.transform.SetParent(gameObject.transform);
                 gemObject.transform.localPosition = new Vector2(0, 1f);
-                return;
             }
         } else
         {
             if (_hasAGem)
             {
+                if (consume)
+                {
+                    AddMana(gemRegenValue);
+                }
                 _hasAGem = false;
                 Destroy(_equippedGem);
                 _equippedGem = null;
-                AddMana(gemRegenValue);
-
-                return;
             }
         }
     }

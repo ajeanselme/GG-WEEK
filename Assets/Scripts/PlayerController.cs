@@ -167,7 +167,7 @@ public class PlayerController : MonoBehaviour
 
     void UseGem()
     {
-        _manaManager.SetHasGem(false, null);
+        _manaManager.SetHasGem(false, null, true);
     }
 
 
