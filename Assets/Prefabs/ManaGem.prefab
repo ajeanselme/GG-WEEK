@@ -113,4 +113,4 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   player: {fileID: 0}
-  lifeTime: 1
+  lifeTime: 15

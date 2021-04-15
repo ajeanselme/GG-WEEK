@@ -102,7 +102,7 @@ MonoBehaviour:
   damage: 1
   playerHealAmount: 1
   fireballPrefab: {fileID: 4162227199538491552, guid: 3ad4622c053663146bc9479352b5db33, type: 3}
-  fireRate: 0
+  fireRate: 1
   fireballSpeed: 8
   shootPoint: {fileID: 5510059614311815109}
 --- !u!61 &7458897341795700417

@@ -29,7 +29,11 @@ public class SceneLoader : MonoBehaviour
     public void loadScene()
     {
         Time.timeScale = 1f;
-        pauseMenu.SetActive(false);
+        if(pauseMenu != null)
+        {
+
+            pauseMenu.SetActive(false);
+        }
         _isPaused = false;
 
         SceneManager.LoadScene(levelName);

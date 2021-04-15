@@ -146,8 +146,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6b0be8b60d5e4204583fa2e5bb99f458, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  maxHealth: 10
-  currentHealth: 10
+  maxHealth: 20
+  currentHealth: 20
   healthBar: {fileID: 0}
   speed: 3
   jumpVelocity: 13.7
@@ -159,6 +159,12 @@ MonoBehaviour:
   dashMultiplier: 20
   dashTime: 0.2
   glideManaCost: 2
+  wheel1: {fileID: 0}
+  wheel2: {fileID: 0}
+  runeAir: {fileID: 0}
+  runeFire: {fileID: 0}
+  runeDash: {fileID: 0}
+  runeMana: {fileID: 0}
 --- !u!114 &6377430372567603374
 MonoBehaviour:
   m_ObjectHideFlags: 0
