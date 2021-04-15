@@ -149,7 +149,7 @@ MonoBehaviour:
   maxHealth: 10
   currentHealth: 10
   healthBar: {fileID: 0}
-  speed: 1
+  speed: 3
   jumpVelocity: 13.7
   fallSpeed: 1
   fireballManaCost: 2

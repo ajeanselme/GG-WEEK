@@ -2,9 +2,13 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
+
+using System.IO.Ports;
 
 public class PlayerController : MonoBehaviour
 {
+
     [Header("Health")]
     public float maxHealth;
     public float currentHealth;
@@ -42,6 +46,25 @@ public class PlayerController : MonoBehaviour
     ManaManager _manaManager;
 
     bool _canGlide = true;
+    bool _isGliding = false;
+
+    SerialPort stream = new SerialPort("COM4", 9600);
+
+
+    float _combo = 0;
+    List<string> comboList = new List<string>();
+
+    [Header("Wheel")]
+    public GameObject wheel1;
+    public GameObject wheel2;
+    public GameObject runeAir;
+    public GameObject runeFire;
+    public GameObject runeDash;
+    public GameObject runeMana;
+
+
+    
+
 
 
 
@@ -52,12 +75,17 @@ public class PlayerController : MonoBehaviour
         _manaManager = GetComponent<ManaManager>();
 
         AddHealth(0);
+
+
+        stream.ReadTimeout = 0;
+        stream.DtrEnable = true;
+        stream.Open();
     }
 
     // Update is called once per frame
     void Update()
     {
-        if (Input.GetKey(KeyCode.Space))
+        if (Input.GetKey(KeyCode.Z))
         {
             Jump(false);
         }
@@ -76,7 +104,138 @@ public class PlayerController : MonoBehaviour
         {
             UseGem();
         }
+
+
+        if (Input.GetKeyDown(KeyCode.UpArrow))
+        {
+            Movement("up");
+        }
+        if (Input.GetKeyDown(KeyCode.RightArrow))
+        {
+            Movement("right");
+        }
+        if (Input.GetKeyDown(KeyCode.DownArrow))
+        {
+            Movement("down");
+        }
+        if (Input.GetKeyDown(KeyCode.LeftArrow))
+        {
+            Movement("left");
+        }
+
+
+        if (Input.GetKeyDown(KeyCode.M))
+        {
+            stream.Close();
+            stream = new SerialPort("COM4", 9600);
+
+            stream.ReadTimeout = 0;
+            stream.DtrEnable = true;
+            stream.Open();
+
+            Debug.Log("reset");
+        }
+
+        try
+        {
+            string s = stream.ReadLine();
+            Debug.Log(s);
+            Movement(s);
+        }
+        catch (System.Exception)
+        {
+        }
+
+        if (_isGliding)
+        {
+            if (_isGrounded)
+            {
+                _isGliding = false;
+                runeAir.SetActive(false);
+            }
+            else
+            {
+                Jump(false);
+            }
+        }
     }
+
+    bool _alting = false;
+
+    public void Movement(string mov)
+    {
+
+        if(!_alting)
+        {
+            if (mov.Equals("up"))
+            {
+                if (_isGrounded)
+                {
+                    Jump(false);
+                }
+                else
+                {
+                    _isGliding = true;
+                    runeAir.SetActive(true);
+                }
+            }
+            else if (mov.Equals("right"))
+            {
+                SpellDash();
+            }
+            else if (mov.Equals("left"))
+            {
+                Debug.Log("charging");
+                _alting = true;
+                runeAir.SetActive(false);
+                runeDash.SetActive(false);
+                wheel1.SetActive(false);
+                wheel2.SetActive(true);
+            }
+            else if (mov.Equals("down"))
+            {
+                if (_isGliding)
+                {
+                    _isGliding = false;
+                    runeAir.SetActive(false);
+                }
+            }
+        }
+        else
+        {
+            if (mov.Equals("up"))
+            {
+                UseGem();
+            }
+            else if (mov.Equals("right"))
+            {
+                SpellFireball();
+            }
+            else
+            {
+                _alting = false;
+                runeFire.SetActive(false);
+                runeMana.SetActive(false);
+                wheel2.SetActive(false);
+                wheel1.SetActive(true);
+            }
+        }
+
+
+/*        if (Time.time > _combo)
+        {
+            Debug.Log("reset alt");
+
+            _alting = false;
+            runeFire.SetActive(false);
+            runeMana.SetActive(false);
+            wheel2.SetActive(false);
+            wheel1.SetActive(true);
+            _combo = Time.time + 3000f;
+        }*/
+
+    }
+
 
     private void FixedUpdate()
     {
@@ -88,6 +247,8 @@ public class PlayerController : MonoBehaviour
                 //end dash
                 _currentDashMultiplier = 1f;
                 _isDashing = false;
+                runeDash.SetActive(false);
+
             }
         }
 
@@ -140,7 +301,12 @@ public class PlayerController : MonoBehaviour
             _ball.GetComponent<Fireball>().Move(true);
 
             _manaManager.AddMana(-fireballManaCost);
-        } else
+
+            runeFire.SetActive(true);
+            StartCoroutine(ResetFireballRune(.5f));
+
+        }
+        else
         {
             Debug.Log("Not enough mana");
         }
@@ -157,6 +323,8 @@ public class PlayerController : MonoBehaviour
                 _dashCooldown = Time.time + dashTime;
 
                 _manaManager.AddMana(-dashManaCost);
+
+                runeDash.SetActive(true);
             }
         }
         else
@@ -165,9 +333,26 @@ public class PlayerController : MonoBehaviour
         }
     }
 
+    IEnumerator ResetFireballRune(float time)
+    {
+        yield return new WaitForSeconds(time);
+
+        runeFire.SetActive(false);
+    }
+    IEnumerator ResetManaRune(float time)
+    {
+        yield return new WaitForSeconds(time);
+
+        runeMana.SetActive(false);
+    }
+
     void UseGem()
     {
         _manaManager.SetHasGem(false, null, true);
+
+        runeMana.SetActive(true);
+
+        StartCoroutine(ResetManaRune(.5f));
     }
 
 
@@ -198,7 +383,14 @@ public class PlayerController : MonoBehaviour
 
     public void KillPlayer()
     {
-        Debug.Log("u ded");
+        if (SceneManager.GetActiveScene().name.Equals("Level1"))
+        {
+            SceneManager.LoadScene("DeathScreen1");
+        } else
+        {
+            SceneManager.LoadScene("DeathScreen2");
+
+        }
     }
 
     private void OnTriggerEnter2D(Collider2D collision)
