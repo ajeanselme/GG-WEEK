@@ -63,7 +63,7 @@ public class PlayerController : MonoBehaviour
     public GameObject runeMana;
 
 
-    
+    private Animator _animator;
 
 
 
@@ -73,6 +73,7 @@ public class PlayerController : MonoBehaviour
     {
         rb = GetComponent<Rigidbody2D>();
         _manaManager = GetComponent<ManaManager>();
+        _animator = GetComponent<Animator>();
 
         AddHealth(0);
 
@@ -103,6 +104,11 @@ public class PlayerController : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.F))
         {
             UseGem();
+        }
+
+        if (Input.GetKeyDown(KeyCode.N))
+        {
+            KillPlayer();
         }
 
 
@@ -264,19 +270,28 @@ public class PlayerController : MonoBehaviour
         if(collision.gameObject.tag == "Ground")
         {
             _isGrounded = true;
+            _animator.SetBool("isGround", true);
         }
     }
 
 
     public void Jump(bool force)
     {
-        if (force) _isGrounded = true;
+        if (force)
+        {
+            _isGrounded = true;
+            _animator.SetBool("isGround", true);
+
+        }
 
         if (_isGrounded)
         {
             rb.velocity = Vector2.up * jumpVelocity;
             _isGrounded = false;
             _canGlide = true;
+
+            _animator.SetBool("isGround", false);
+
         } else if(rb.velocity.y < 0f && Mathf.Abs(rb.velocity.y) > fallSpeed)
         {
             if(_manaManager.currentMana > 0 && _canGlide)
