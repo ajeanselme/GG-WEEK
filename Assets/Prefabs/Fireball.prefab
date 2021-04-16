@@ -99,6 +99,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   speed: 10
   lifeTime: 1.5
+  owner: {fileID: 0}
   _rb: {fileID: 3075197468754669777}
 --- !u!50 &3075197468754669777
 Rigidbody2D:
